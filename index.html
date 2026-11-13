@@ -1,0 +1,371 @@
+<!DOCTYPE html>
+<html lang="ml">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TVM FILM OFFICIAL - School Results & Cinema Portal</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Malayalam:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Noto Sans Malayalam', sans-serif;
+            background-color: #0b0f19;
+            color: #ffffff;
+        }
+        .hidden-modal {
+            display: none !important;
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col justify-between">
+
+    <!-- Header -->
+    <header class="bg-[#111827] border-b border-gray-800 px-4 py-3 sticky top-0 z-40">
+        <div class="max-w-5xl mx-auto flex flex-wrap items-center justify-between gap-3">
+            <div class="flex items-center gap-3">
+                <div class="bg-yellow-500 text-black font-extrabold px-2.5 py-1 rounded text-lg">TVM</div>
+                <div>
+                    <h1 id="displaySiteTitle" class="text-yellow-500 font-extrabold text-lg sm:text-xl leading-tight">TVM FILM OFFICIAL</h1>
+                    <p id="displaySiteSubtitle" class="text-gray-400 text-xs">Official School Results & Cinema Portal</p>
+                </div>
+            </div>
+
+            <div class="flex items-center gap-2">
+                <button onclick="sharePortal()" class="bg-[#1e293b] hover:bg-gray-700 text-gray-200 text-xs sm:text-sm px-3 py-2 rounded-lg border border-gray-700 flex items-center gap-1.5 transition cursor-pointer">
+                    <span>🔗</span> ലിങ്ക് ഷെയർ ചെയ്യുക
+                </button>
+                <button id="loginBtn" onclick="openLoginModal()" class="bg-yellow-500 hover:bg-yellow-400 text-black font-bold text-xs sm:text-sm px-4 py-2 rounded-lg transition cursor-pointer">
+                    Owner Login
+                </button>
+                <button id="logoutBtn" onclick="logoutOwner()" class="hidden-modal bg-red-600 hover:bg-red-500 text-white font-bold text-xs sm:text-sm px-4 py-2 rounded-lg transition cursor-pointer">
+                    Logout
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="max-w-5xl w-full mx-auto px-4 py-6 flex-grow">
+        
+        <!-- Notice Banner -->
+        <div class="bg-[#1c1917] border border-yellow-600/40 rounded-xl p-3 mb-6 flex items-center gap-3 text-yellow-400 text-sm">
+            <span>📢</span>
+            <p id="displaySiteNotice">അറിയിപ്പ്: ഏറ്റവും പുതിയ സ്കൂൾ പരീക്ഷാ ഫലങ്ങളും (School Results) മൂവി ഡൗൺലോഡ് ലിങ്കുകളും താഴെ ലഭ്യമാണ്.</p>
+        </div>
+
+        <!-- Owner Control Panel (Hidden until logged in) -->
+        <div id="ownerPanel" class="hidden-modal bg-[#161e2e] border-2 border-yellow-500/50 rounded-xl p-5 mb-6 shadow-lg">
+            <div class="flex flex-wrap justify-between items-center gap-2 mb-4 border-b border-gray-700 pb-3">
+                <h2 class="text-yellow-400 font-bold text-lg">👑 Owner Control Panel</h2>
+                <button onclick="openSettingsModal()" class="bg-gray-700 hover:bg-gray-600 text-white text-xs px-3 py-1.5 rounded-lg cursor-pointer">
+                    ⚙️ സൈറ്റ് സെറ്റിംഗ്സ്
+                </button>
+            </div>
+            
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <!-- Add Result Form -->
+                <div class="bg-[#0f172a] p-4 rounded-lg border border-gray-800">
+                    <h3 class="text-yellow-500 font-bold text-sm mb-3">+ പുതിയ റിസൾട്ട് ചേർക്കുക</h3>
+                    <input type="text" id="resName" placeholder="വിദ്യാർത്ഥിയുടെ പേര്" class="w-full bg-gray-900 border border-gray-700 rounded p-2 text-sm mb-2 text-white">
+                    <input type="text" id="resReg" placeholder="രജിസ്റ്റർ നമ്പർ (ഉദാ: 1001)" class="w-full bg-gray-900 border border-gray-700 rounded p-2 text-sm mb-2 text-white">
+                    <input type="text" id="resGrade" placeholder="ഗ്രേഡ് / മാർക്ക് (ഉദാ: A+ / 95%)" class="w-full bg-gray-900 border border-gray-700 rounded p-2 text-sm mb-3 text-white">
+                    <button onclick="addResult()" class="w-full bg-yellow-500 hover:bg-yellow-400 text-black font-bold py-2 rounded text-sm cursor-pointer">റിസൾട്ട് സേവ് ചെയ്യുക</button>
+                </div>
+
+                <!-- Add Movie Form -->
+                <div class="bg-[#0f172a] p-4 rounded-lg border border-gray-800">
+                    <h3 class="text-blue-400 font-bold text-sm mb-3">+ പുതിയ മൂവി ലിങ്ക് ചേർക്കുക</h3>
+                    <input type="text" id="movTitle" placeholder="സിനിമയുടെ പേര് (ഉദാ: Drishyam 3)" class="w-full bg-gray-900 border border-gray-700 rounded p-2 text-sm mb-2 text-white">
+                    <input type="text" id="movQuality" placeholder="ക്വാളിറ്റി (ഉദാ: 1080p HDRip)" class="w-full bg-gray-900 border border-gray-700 rounded p-2 text-sm mb-2 text-white">
+                    <input type="text" id="movUrl" placeholder="ഡൗൺലോഡ് ലിങ്ക് (https://...)" class="w-full bg-gray-900 border border-gray-700 rounded p-2 text-sm mb-3 text-white">
+                    <button onclick="addMovie()" class="w-full bg-blue-600 hover:bg-blue-500 text-white font-bold py-2 rounded text-sm cursor-pointer">മൂവി ലിങ്ക് ചേർക്കുക</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Navigation Tabs -->
+        <div class="flex flex-wrap items-center justify-between gap-3 mb-5">
+            <div class="flex gap-2">
+                <button id="tabResults" onclick="switchTab('results')" class="bg-yellow-500 text-black font-bold px-4 py-2.5 rounded-xl text-sm flex items-center gap-2 transition cursor-pointer">
+                    <span>🎓</span> സ്കൂൾ റിസൾട്ട് (School Results)
+                </button>
+                <button id="tabMovies" onclick="switchTab('movies')" class="bg-[#1e293b] text-gray-300 hover:bg-gray-800 font-semibold px-4 py-2.5 rounded-xl text-sm flex items-center gap-2 border border-gray-700 transition cursor-pointer">
+                    <span>🎬</span> മൂവി ഡൗൺലോഡ് (Movie Links)
+                </button>
+            </div>
+            <div class="text-green-400 text-xs flex items-center gap-1.5">
+                <span class="w-2 h-2 rounded-full bg-green-500 inline-block"></span> Live System Ready
+            </div>
+        </div>
+
+        <!-- Results Section -->
+        <div id="sectionResults" class="bg-[#111827] border border-gray-800 rounded-2xl p-5">
+            <input type="text" id="searchResult" onkeyup="renderResults()" placeholder="പേര്, ക്ലാസ്, അല്ലെങ്കിൽ നമ്പർ തിരയുക..." class="w-full sm:w-96 bg-[#0b0f19] border border-gray-700 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-yellow-500 mb-4">
+            <div id="resultsList" class="space-y-3"></div>
+        </div>
+
+        <!-- Movies Section -->
+        <div id="sectionMovies" class="hidden-modal bg-[#111827] border border-gray-800 rounded-2xl p-5">
+            <input type="text" id="searchMovie" onkeyup="renderMovies()" placeholder="സിനിമയുടെ പേര് തിരയുക..." class="w-full sm:w-96 bg-[#0b0f19] border border-gray-700 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-blue-500 mb-4">
+            <div id="moviesList" class="space-y-3"></div>
+        </div>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="border-t border-gray-800 py-4 text-center text-gray-500 text-xs">
+        © 2026 <span id="footerTitle">TVM FILM OFFICIAL</span>. All Rights Reserved.
+    </footer>
+
+    <!-- Login Modal -->
+    <div id="loginModal" class="hidden-modal fixed inset-0 bg-black/80 flex items-center justify-center z-50 p-4">
+        <div class="bg-[#1e293b] border border-gray-700 rounded-2xl p-6 max-w-sm w-full shadow-2xl">
+            <h3 class="text-yellow-400 font-bold text-lg mb-2">Owner Login</h3>
+            <p class="text-gray-400 text-xs mb-4">തുടരുന്നതിനായി പാസ്‌വേഡ് നൽകുക (Default: <span class="text-white font-mono">1234</span>)</p>
+            <input type="password" id="ownerPassInput" placeholder="പാസ്‌വേഡ് ടൈപ്പ് ചെയ്യുക" class="w-full bg-[#0f172a] border border-gray-600 rounded-lg p-2.5 text-white text-sm mb-4 focus:border-yellow-500 focus:outline-none">
+            <div class="flex justify-end gap-2">
+                <button onclick="closeLoginModal()" class="px-4 py-2 bg-gray-700 hover:bg-gray-600 rounded-lg text-sm cursor-pointer">റദ്ദാക്കുക</button>
+                <button onclick="verifyLogin()" class="px-4 py-2 bg-yellow-500 hover:bg-yellow-400 text-black font-bold rounded-lg text-sm cursor-pointer">ലോഗിൻ</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Settings Modal -->
+    <div id="settingsModal" class="hidden-modal fixed inset-0 bg-black/80 flex items-center justify-center z-50 p-4">
+        <div class="bg-[#1e293b] border border-gray-700 rounded-2xl p-6 max-w-md w-full shadow-2xl">
+            <h3 class="text-yellow-400 font-bold text-lg mb-4">സൈറ്റ് സെറ്റിംഗ്സ്</h3>
+            <label class="block text-xs text-gray-400 mb-1">സൈറ്റിന്റെ പേര്</label>
+            <input type="text" id="setSiteTitle" class="w-full bg-[#0f172a] border border-gray-600 rounded-lg p-2 text-white text-sm mb-3">
+            
+            <label class="block text-xs text-gray-400 mb-1">സബ് ടൈറ്റിൽ</label>
+            <input type="text" id="setSiteSubtitle" class="w-full bg-[#0f172a] border border-gray-600 rounded-lg p-2 text-white text-sm mb-3">
+            
+            <label class="block text-xs text-gray-400 mb-1">അറിയിപ്പ് (Notice)</label>
+            <input type="text" id="setNoticeText" class="w-full bg-[#0f172a] border border-gray-600 rounded-lg p-2 text-white text-sm mb-3">
+            
+            <label class="block text-xs text-gray-400 mb-1">പുതിയ പാസ്‌വേഡ് (മാറ്റണമെങ്കിൽ മാത്രം)</label>
+            <input type="password" id="setOwnerPass" placeholder="പുതിയ പാസ്‌വേഡ്" class="w-full bg-[#0f172a] border border-gray-600 rounded-lg p-2 text-white text-sm mb-4">
+            
+            <div class="flex justify-end gap-2">
+                <button onclick="closeSettingsModal()" class="px-4 py-2 bg-gray-700 hover:bg-gray-600 rounded-lg text-sm cursor-pointer">റദ്ദാക്കുക</button>
+                <button onclick="saveSiteSettings()" class="px-4 py-2 bg-yellow-500 hover:bg-yellow-400 text-black font-bold rounded-lg text-sm cursor-pointer">സേവ് ചെയ്യുക</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Default Data & LocalStorage Initialization
+        let isLoggedIn = false;
+        let siteConfig = JSON.parse(localStorage.getItem('tvm_config')) || {
+            title: "TVM FILM OFFICIAL",
+            subtitle: "Official School Results & Cinema Portal",
+            notice: "അറിയിപ്പ്: ഏറ്റവും പുതിയ സ്കൂൾ പരീക്ഷാ ഫലങ്ങളും (School Results) മൂവി ഡൗൺലോഡ് ലിങ്കുകളും താഴെ ലഭ്യമാണ്.",
+            ownerPass: "1234"
+        };
+
+        let resultsData = JSON.parse(localStorage.getItem('tvm_results')) || [
+            { id: 1, name: "അർജുൻ കെ", reg: "1001", grade: "A+ (96%)" },
+            { id: 2, name: "മീര എസ്", reg: "1002", grade: "A (89%)" }
+        ];
+
+        let movieLinks = JSON.parse(localStorage.getItem('tvm_movies')) || [
+            { id: 1, title: "Drishyam 3 (2026)", quality: "1080p Malayalam 4KHD", url: "#" },
+            { id: 2, title: "Empuraan", quality: "1080p HDRip", url: "#" }
+        ];
+
+        function applyConfig() {
+            document.getElementById('displaySiteTitle').innerText = siteConfig.title;
+            document.getElementById('footerTitle').innerText = siteConfig.title;
+            document.getElementById('displaySiteSubtitle').innerText = siteConfig.subtitle;
+            document.getElementById('displaySiteNotice').innerText = siteConfig.notice;
+        }
+
+        function saveData() {
+            localStorage.setItem('tvm_config', JSON.stringify(siteConfig));
+            localStorage.setItem('tvm_results', JSON.stringify(resultsData));
+            localStorage.setItem('tvm_movies', JSON.stringify(movieLinks));
+        }
+
+        // Login Functions
+        function openLoginModal() {
+            document.getElementById('loginModal').classList.remove('hidden-modal');
+            document.getElementById('ownerPassInput').value = '';
+            document.getElementById('ownerPassInput').focus();
+        }
+
+        function closeLoginModal() {
+            document.getElementById('loginModal').classList.add('hidden-modal');
+        }
+
+        function verifyLogin() {
+            const pass = document.getElementById('ownerPassInput').value;
+            if (pass === siteConfig.ownerPass) {
+                isLoggedIn = true;
+                closeLoginModal();
+                document.getElementById('loginBtn').classList.add('hidden-modal');
+                document.getElementById('logoutBtn').classList.remove('hidden-modal');
+                document.getElementById('ownerPanel').classList.remove('hidden-modal');
+                renderResults();
+                renderMovies();
+            } else {
+                alert("തെറ്റായ പാസ്‌വേഡ്! (Default password: 1234)");
+            }
+        }
+
+        function logoutOwner() {
+            isLoggedIn = false;
+            document.getElementById('loginBtn').classList.remove('hidden-modal');
+            document.getElementById('logoutBtn').classList.add('hidden-modal');
+            document.getElementById('ownerPanel').classList.add('hidden-modal');
+            renderResults();
+            renderMovies();
+        }
+
+        // Settings Functions
+        function openSettingsModal() {
+            document.getElementById('setSiteTitle').value = siteConfig.title;
+            document.getElementById('setSiteSubtitle').value = siteConfig.subtitle;
+            document.getElementById('setNoticeText').value = siteConfig.notice;
+            document.getElementById('setOwnerPass').value = '';
+            document.getElementById('settingsModal').classList.remove('hidden-modal');
+        }
+
+        function closeSettingsModal() {
+            document.getElementById('settingsModal').classList.add('hidden-modal');
+        }
+
+        function saveSiteSettings() {
+            siteConfig.title = document.getElementById('setSiteTitle').value || siteConfig.title;
+            siteConfig.subtitle = document.getElementById('setSiteSubtitle').value || siteConfig.subtitle;
+            siteConfig.notice = document.getElementById('setNoticeText').value || siteConfig.notice;
+            const newPass = document.getElementById('setOwnerPass').value.trim();
+            if (newPass) siteConfig.ownerPass = newPass;
+            
+            saveData();
+            applyConfig();
+            closeSettingsModal();
+            alert("സെറ്റിംഗ്സ് സേവ് ചെയ്തു!");
+        }
+
+        // Tabs
+        function switchTab(tab) {
+            const tabRes = document.getElementById('tabResults');
+            const tabMov = document.getElementById('tabMovies');
+            const secRes = document.getElementById('sectionResults');
+            const secMov = document.getElementById('sectionMovies');
+
+            if (tab === 'results') {
+                tabRes.className = "bg-yellow-500 text-black font-bold px-4 py-2.5 rounded-xl text-sm flex items-center gap-2 transition cursor-pointer";
+                tabMov.className = "bg-[#1e293b] text-gray-300 hover:bg-gray-800 font-semibold px-4 py-2.5 rounded-xl text-sm flex items-center gap-2 border border-gray-700 transition cursor-pointer";
+                secRes.classList.remove('hidden-modal');
+                secMov.classList.add('hidden-modal');
+            } else {
+                tabMov.className = "bg-blue-600 text-white font-bold px-4 py-2.5 rounded-xl text-sm flex items-center gap-2 transition cursor-pointer";
+                tabRes.className = "bg-[#1e293b] text-gray-300 hover:bg-gray-800 font-semibold px-4 py-2.5 rounded-xl text-sm flex items-center gap-2 border border-gray-700 transition cursor-pointer";
+                secMov.classList.remove('hidden-modal');
+                secRes.classList.add('hidden-modal');
+            }
+        }
+
+        // Results CRUD
+        function addResult() {
+            const name = document.getElementById('resName').value.trim();
+            const reg = document.getElementById('resReg').value.trim();
+            const grade = document.getElementById('resGrade').value.trim();
+            if (!name || !reg || !grade) return alert("എല്ലാ വിവരങ്ങളും നൽകുക!");
+
+            resultsData.unshift({ id: Date.now(), name, reg, grade });
+            saveData();
+            renderResults();
+            document.getElementById('resName').value = '';
+            document.getElementById('resReg').value = '';
+            document.getElementById('resGrade').value = '';
+        }
+
+        function deleteResult(id) {
+            resultsData = resultsData.filter(r => r.id !== id);
+            saveData();
+            renderResults();
+        }
+
+        function renderResults() {
+            const query = document.getElementById('searchResult').value.toLowerCase();
+            const list = document.getElementById('resultsList');
+            const filtered = resultsData.filter(r => r.name.toLowerCase().includes(query) || r.reg.toLowerCase().includes(query));
+
+            if (filtered.length === 0) {
+                list.innerHTML = `<p class="text-gray-500 text-sm text-center py-4">റിസൾട്ടുകൾ ഒന്നും കണ്ടെത്തിയില്ല.</p>`;
+                return;
+            }
+
+            list.innerHTML = filtered.map(r => `
+                <div class="bg-[#1e293b] border border-gray-700 p-4 rounded-xl flex items-center justify-between">
+                    <div>
+                        <h4 class="font-bold text-white text-base">${r.name}</h4>
+                        <p class="text-gray-400 text-xs">Reg No: <span class="text-yellow-400 font-mono">${r.reg}</span></p>
+                    </div>
+                    <div class="flex items-center gap-3">
+                        <span class="bg-green-900/50 border border-green-500/40 text-green-400 font-bold px-3 py-1 rounded-lg text-sm">${r.grade}</span>
+                        ${isLoggedIn ? `<button onclick="deleteResult(${r.id})" class="bg-red-600/80 hover:bg-red-600 text-white px-2.5 py-1 rounded text-xs cursor-pointer">Delete</button>` : ''}
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // Movies CRUD
+        function addMovie() {
+            const title = document.getElementById('movTitle').value.trim();
+            const quality = document.getElementById('movQuality').value.trim();
+            const url = document.getElementById('movUrl').value.trim();
+            if (!title || !url) return alert("സിനിമയുടെ പേരും ലിങ്കും നൽകുക!");
+
+            movieLinks.unshift({ id: Date.now(), title, quality: quality || "HD", url });
+            saveData();
+            renderMovies();
+            document.getElementById('movTitle').value = '';
+            document.getElementById('movQuality').value = '';
+            document.getElementById('movUrl').value = '';
+        }
+
+        function deleteMovie(id) {
+            movieLinks = movieLinks.filter(m => m.id !== id);
+            saveData();
+            renderMovies();
+        }
+
+        function renderMovies() {
+            const query = document.getElementById('searchMovie').value.toLowerCase();
+            const list = document.getElementById('moviesList');
+            const filtered = movieLinks.filter(m => m.title.toLowerCase().includes(query));
+
+            if (filtered.length === 0) {
+                list.innerHTML = `<p class="text-gray-500 text-sm text-center py-4">സിനിമകൾ ഒന്നും കണ്ടെത്തിയില്ല.</p>`;
+                return;
+            }
+
+            list.innerHTML = filtered.map(m => `
+                <div class="bg-[#1e293b] border border-gray-700 p-4 rounded-xl flex flex-wrap items-center justify-between gap-3">
+                    <div>
+                        <h4 class="font-bold text-white text-base">${m.title}</h4>
+                        <span class="text-xs text-blue-400 bg-blue-950 px-2 py-0.5 rounded border border-blue-800">${m.quality}</span>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <a href="${m.url}" target="_blank" class="bg-blue-600 hover:bg-blue-500 text-white font-bold px-4 py-2 rounded-lg text-xs transition">Download ⬇️</a>
+                        ${isLoggedIn ? `<button onclick="deleteMovie(${m.id})" class="bg-red-600/80 hover:bg-red-600 text-white px-2.5 py-2 rounded-lg text-xs cursor-pointer">Delete</button>` : ''}
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function sharePortal() {
+            navigator.clipboard.writeText(window.location.href);
+            alert("വെബ്സൈറ്റ് ലിങ്ക് കോപ്പി ചെയ്തു!");
+        }
+
+        // Initial Render
+        applyConfig();
+        renderResults();
+        renderMovies();
+    </script>
+</body>
+</html>
